@@ -1,0 +1,25 @@
+<setup>
+  <block title="Configure This App">
+    <text>Enter your account details of Catalyst Cloud</text>
+  </block>
+  <block title="Add new credentials" endpoint="storage/passwords" entity="_new">
+      <input field="name">
+        <label>Username</label>
+        <type>text</type>
+      </input>
+      <input field="password">
+        <label>Password</label>
+        <type>password</type>
+      </input>
+  </block>
+  <block title="" endpoint="mycustom/customendpoint" entity="userinfo">
+      <input field="tenant">
+        <label>Project Name</label>
+        <type>text</type>
+      </input>
+      <input field="baseurl">
+        <label>Auth URL</label>
+        <type>text</type>
+      </input>
+  </block>
+</setup>

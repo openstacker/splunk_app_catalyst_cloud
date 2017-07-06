@@ -1,0 +1,46 @@
+[app/ui]
+version = 6.6.1
+modtime = 1498780925.459572000
+
+[app/launcher]
+version = 6.6.1
+modtime = 1498780925.460465000
+
+[nav/default]
+version = 6.6.1
+modtime = 1499307391.324516000
+
+[myconf/default]
+owner = admin
+version = 6.6.1
+modtime = 1499282416.955891000
+
+[myconf/userinfo]
+owner = admin
+version = 6.6.1
+modtime = 1499282416.986571000
+
+[passwords/credential%3A%3Aadmin%3A]
+owner = admin
+version = 6.6.1
+modtime = 1499282417.166868000
+
+[app/install/is_configured]
+version = 6.6.1
+modtime = 1499282417.553220000
+
+[views/default]
+version = 6.6.1
+modtime = 1499293065.770670000
+
+[app/install/state]
+version = 6.6.1
+modtime = 1499308225.800515000
+
+[views/overview]
+version = 6.6.1
+modtime = 1499315564.242100000
+
+[views/sample_dashboard]
+version = 6.6.1
+modtime = 1499306628.455150000

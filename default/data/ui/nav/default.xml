@@ -1,0 +1,17 @@
+<nav search_view="search" color="#ED1D48">
+    <view name="overview"/>
+    <view name="compute"/>
+    <view name="blockstorage"/>
+    <view name="network"/>
+    <view name="blockstorage"/>
+    <view name="billing"/>
+    <collection label="Search">
+        <view name="dashboards"/>
+        <view name="reports"/>
+        <view name="alerts"/>
+        <view name="search"/>
+    </collection>
+
+    <view name="configure"/>
+
+</nav>
