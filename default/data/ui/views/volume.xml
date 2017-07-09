@@ -1,5 +1,5 @@
 <dashboard>
-  <label>Compute</label>
+  <label>Block Storage</label>
   <!-- First row of a single comment -->
   <!-- Second row of 2 panels -->
   <row>
@@ -19,16 +19,15 @@
   </row>
   <row>
     <panel>
-        <search>
-            <query>source = volumes | top available_volume_count</query>
-        </search>
+      <chart>
+        <title>Top volumes</title>
+        <search ref="Top recipients - pie chart"></search>
+      </chart>
     </panel>
     <panel>
       <chart>
         <title>Top recipients by mailer</title>
-        <search>
-            <query>source = volumes | top available_volume_count</query>
-        </search>
+        <search ref="Top recipients by mailer - area chart"></search>
       </chart>
     </panel>
   </row>

@@ -1,205 +1,128 @@
 <form script="overview.js">
-    <label>Overview</label>
-
-    <fieldset submitButton="false">
-        <input type="multiselect" token="region" searchWhenChanged="true">
-            <label>Regions</label>
-            <populatingSearch fieldForValue="region" fieldForLabel="label">
-                <![CDATA[ |inputlookup regions.csv ]]>
-            </populatingSearch>
-            <prefix> (</prefix>
-            <suffix>) </suffix>
-            <valuePrefix>region="</valuePrefix>
-            <valueSuffix>"</valueSuffix>
-            <delimiter> AND </delimiter>
-        </input>
-        <input type="dropdown" token="project" searchWhenChanged="true">
-            <label>Projects</label>
-            <populatingSearch fieldForValue="project" fieldForLabel="title">
-                <![CDATA[ |aclinputlookup projects.csv | mvcombine delim=", " name | nomv name | eval title=project." (".name.")" ]]>
-            </populatingSearch>
-            <prefix>(aws_account_id="</prefix>
-            <suffix>")</suffix>
-        </input>
-        
-        <input type="time" searchWhenChanged="true">
-            <label>Time Range</label>
-            <default>Last 7 days</default>
-        </input>
-    </fieldset>
-
-    <search id="baseInstanceSearch">
-        <query>
-            <![CDATA[
-                `aws-description-resource($accountId$, $region$, "ec2_instances")` $tags|tag2description$
-                | stats dc(id) as count by placement, instance_type, state
-                | rename placement as availability_zone
-            ]]>
-        </query>
-        <earliest>-1d</earliest>
-        <latest>now</latest>
-    </search>
-
-    <search id="baseVolumeSearch">
-        <query>
-            <![CDATA[
-                `aws-description-resource($accountId$, $region$, "ec2_volumes")` $tags|tag2description$
-                | stats dc(id) as count by status
-            ]]>
-        </query>
-        <earliest>-1d</earliest>
-        <latest>now</latest>
-    </search>
-
-    <search id="baseConfigChangeSearch">
-        <query>
-            <![CDATA[
-                `aws-config-notification($accountId$, $region$)` $tags|tag2notification$
-                | stats count by configurationItemDiff.changeType
-            ]]>
-        </query>
-        <earliest>$earliest$</earliest>
-        <latest>$latest$</latest>
-    </search>
-
-    <row>
-        <panel>
-            <title>Compute Instances</title>
-            <single>
-                <search>
-                    <query>
-                        <![CDATA[
-                            `aws-description-resource($accountId$, $region$, "vpcs")` $tags|tag2description$
-                            | stats dc(id) as count
-                            | nadefault count
-                        ]]>
-                    </query>
-                    <earliest>-1d</earliest>
-                    <latest>now</latest>
-                </search>
-                <drilldown>
-                    <link>
-                        vpcs?latest=$latest$&amp;earliest=$earliest$&amp;form.accountId=$form.accountId$&amp;regions=$form.region$
-                    </link>
-                </drilldown>
-                <option name="field">count</option>
-                <option name="underLabel">VPCs</option>
-            </single>
-            <single>
-                <search base="baseInstanceSearch">
-                    <query>
-                        <![CDATA[
-                            search state="running"
-                            | stats sum(count) as count
-                            | nadefault count
-                        ]]>
-                    </query>
-                </search>
-                <drilldown>
-                    <link>
-                        instance_usage?latest=$latest$&amp;earliest=$earliest$&amp;form.accountId=$form.accountId$&amp;regions=$form.region$&amp;form.tags=$tags$
-                    </link>
-                </drilldown>
-                <option name="field">count</option>
-                <option name="underLabel">RUNNING INSTANCES</option>
-            </single>
-            <single>
-                <search base="baseInstanceSearch">
-                    <query>
-                        <![CDATA[
-                            stats sum(count) as count
-                            | nadefault count
-                        ]]>
-                    </query>
-                </search>
-                <drilldown>
-                    <link>
-                        instance_usage?latest=$latest$&amp;earliest=$earliest$&amp;form.accountId=$form.accountId$&amp;regions=$form.region$&amp;form.tags=$tags$
-                    </link>
-                </drilldown>
-                <option name="field">count</option>
-                <option name="underLabel">TOTAL INSTANCES</option>
-            </single>
-        </panel>
-        <panel id="storagePanel">
-            <title>Storage</title>
-            <single>
-                <search>
-                    <query>
-                        <![CDATA[
-                            `aws-description-resource($accountId$, $region$, "ec2_volumes")` $tags|tag2description$
-                            | stats dc(id) as count by status 
-                            | where status="available" 
-                            | nadefault count
-                        ]]>
-                    </query>
-                    <earliest>-1d</earliest>
-                    <latest>now</latest>
-                </search>
-                <drilldown>
-                    <link>
-                        ebs_usage?latest=$latest$&amp;earliest=$earliest$&amp;form.accountId=$form.accountId$&amp;regions=$form.region$&amp;form.tags=$tags$
-                    </link>
-                </drilldown>
-                <option name="field">count</option>
-                <option name="underLabel">UNUSED EBS VOLUMES</option>
-                <option name="useColors">1</option>
-                <option name="colorBy">value</option>
-                <option name="colorMode">none</option>
-                <option name="rangeColors">["0x555","0xd93f3c"]</option>
-                <option name="rangeValues">[0]</option>
-            </single>
-            <single>
-                <search>
-                    <query>
-                        <![CDATA[
-                            `aws-description-resource($accountId$, $region$, "ec2_volumes")` $tags|tag2description$
-                            | stats sum(size) as size
-                            | eval size=size
-                            | nadefault size
-                        ]]>
-                    </query>
-                    <earliest>-1d</earliest>
-                    <latest>now</latest>
-                </search>
-                <drilldown>
-                    <link>
-                        ebs_usage?latest=$latest$&amp;earliest=$earliest$&amp;form.accountId=$form.accountId$&amp;regions=$form.region$&amp;form.tags=$tags$
-                    </link>
-                </drilldown>
-                <option name="field">size</option>
-                <option name="underLabel">TOTAL EBS SIZE (GB)</option>
-            </single>
-            <single>
-                <search>
-                    <query>
-                        <![CDATA[
-                            `aws-s3-cloudwatch($accountId$, $region$)` metric_name=BucketSizeBytes
-                            | rex field=metric_dimensions "([ ,]|^)BucketName=\[(?<bucket>.*?)\]"
-                            | dedup bucket sortby -_time 
-                            | stats sum(Maximum) as size 
-                            | eval size=size/1024/1024/1024
-                            | nadefault size  
-                        ]]>
-                    </query>
-                    <earliest>-7d</earliest>
-                    <latest>now</latest>
-                </search>
-                <option name="field">size</option>
-                <option name="underLabel">S3 SIZE (GB)</option>
-                <drilldown>
-                    <link target="_blank">
-                        <![CDATA[
-                            search?q=search `aws-s3-cloudwatch($accountId$, $region$)` metric_name=BucketSizeBytes
-                            | dedup metric_dimensions sortby -_time 
-                            | eval size(GB)=round(Maximum/1024/1024/1024,2)
-                            | sort -Maximum 
-                            | table metric_dimensions region size(GB)&latest=$latest$&earliest=$earliest$
-                        ]]>
-                    </link>
-                </drilldown>
-            </single>
-        </panel>
-    </row>
-
+  <label>Overview</label>
+  <fieldset submitButton="false">
+    <input type="multiselect" token="region" searchWhenChanged="true">
+      <label>Regions</label>
+      <choice value="*">All</choice>
+      <populatingSearch fieldForValue="region" fieldForLabel="label">
+        <![CDATA[ |inputlookup regions.csv ]]>
+      </populatingSearch>
+      <prefix> (</prefix>
+      <suffix>) </suffix>
+      <valuePrefix>region="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <fieldForLabel>label</fieldForLabel>
+      <fieldForValue>region</fieldForValue>
+    </input>
+    <input type="dropdown" token="project" searchWhenChanged="true">
+      <label>Projects</label>
+      <choice value="*">openstack-dev.catalyst.net.nz</choice>
+      <populatingSearch fieldForValue="project" fieldForLabel="title"></populatingSearch>
+      <fieldForLabel>title</fieldForLabel>
+      <fieldForValue>project</fieldForValue>
+    </input>
+    <input type="time" searchWhenChanged="true">
+      <label>Time Range</label>
+      <default>Last 7 days</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Instances</title>
+      <single>
+        <search>
+          <query>sourcetype=instances | head 1 | table instances_count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Volumes</title>
+      <single>
+        <search>
+          <query>sourcetype=volumes | head 1 | table volumes_count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel id="storagePanel">
+      <title>Images</title>
+      <single>
+        <search>
+          <query>sourcetype=images| head 1 | table images_count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>1m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <map>
+        <search>
+          <query>source=regions.csv</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+      </map>
+    </panel>
+  </row>
 </form>

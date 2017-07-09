@@ -1,8 +1,8 @@
 <setup>
-  <block title="Configure This App">
+  <block title="Configuration of Catalyst Cloud App for Splunk">
     <text>Enter your account details of Catalyst Cloud</text>
   </block>
-  <block title="Add new credentials" endpoint="storage/passwords" entity="_new">
+  <block title="Credentials of your Catalyst Cloud Account" endpoint="storage/passwords" entity="_new">
       <input field="name">
         <label>Username</label>
         <type>text</type>

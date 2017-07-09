@@ -1,11 +1,11 @@
 <nav search_view="search" color="#1D414E">
     <view name="overview" default="true"/>
+    <view name="compute" />
+    <view name="image" />
+    <view name="volume" />
+    <view name="network" />
+    <view name="object" />
     <collection label="Insights">
-        <view name="compute" />
-        <view name="image" />
-        <view name="volume" />
-        <view name="network" />
-        <view name="object" />
         <view name="billing" />
     </collection>
     <view name="search" />

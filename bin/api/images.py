@@ -16,24 +16,22 @@
 # limitations under the License.
 
 import sys
-import argparse
 import requests
-from pprint import pprint
-import json
-import os
-import random
 from auth import *
 
-SERVICE_NAME = "cinder"
+SERVICE_NAME = "glance"
 
 
 def main():
     session_key = sys.stdin.readline().strip()
     token, auth_catalog = get_token(session_key)
     base_url = get_baseURL(SERVICE_NAME, auth_catalog)
-    headers = {'content-type': 'application/json','X-Auth-Token':token}
-    response = requests.get(base_url + '/volumes', headers=headers).json()
-    print("volumes_count=%s" % len(response["volumes"]))
+
+    headers = {'content-type': 'application/json', 'X-Auth-Token': token}
+    response = requests.get(base_url + '/v2/images', headers=headers).json()
+    images_count = len(response["images"])
+    print("images_count=%d" % images_count)
+
 
 if __name__ == "__main__":
     main()

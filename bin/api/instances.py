@@ -18,22 +18,24 @@
 import sys
 import argparse
 import requests
-from pprint import pprint
+from auth import *
 import json
 import os
-import random
-from auth import *
 
-SERVICE_NAME = "cinder"
+SERVICE_NAME = "nova"
 
 
 def main():
     session_key = sys.stdin.readline().strip()
     token, auth_catalog = get_token(session_key)
     base_url = get_baseURL(SERVICE_NAME, auth_catalog)
-    headers = {'content-type': 'application/json','X-Auth-Token':token}
-    response = requests.get(base_url + '/volumes', headers=headers).json()
-    print("volumes_count=%s" % len(response["volumes"]))
+    headers = {'content-type': 'application/json', 'X-Auth-Token': token}
+    project_id = auth_catalog["token"]["project"]["id"]
+    # TODO(flwang): Use urlparse to connect URL
+    response = requests.get(base_url + "/" + project_id + '/servers', headers=headers).json()
+    instances_count = len(response["servers"])
+    print("instances_count=%d" % instances_count)
+
 
 if __name__ == "__main__":
     main()

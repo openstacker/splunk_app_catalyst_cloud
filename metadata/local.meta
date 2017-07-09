@@ -8,7 +8,7 @@ modtime = 1498780925.460465000
 
 [nav/default]
 version = 6.6.1
-modtime = 1499380136.140675000
+modtime = 1499385863.670650000
 
 [myconf/default]
 owner = admin
@@ -18,16 +18,16 @@ modtime = 1499282416.955891000
 [myconf/userinfo]
 owner = admin
 version = 6.6.1
-modtime = 1499282416.986571000
+modtime = 1499429956.429643000
 
 [passwords/credential%3A%3Aadmin%3A]
 owner = admin
 version = 6.6.1
-modtime = 1499282417.166868000
+modtime = 1499429956.611488000
 
 [app/install/is_configured]
 version = 6.6.1
-modtime = 1499282417.553220000
+modtime = 1499429956.934396000
 
 [views/default]
 version = 6.6.1
@@ -39,8 +39,13 @@ modtime = 1499308225.800515000
 
 [views/overview]
 version = 6.6.1
-modtime = 1499315564.242100000
+modtime = 1499411312.998481000
 
 [views/sample_dashboard]
 version = 6.6.1
 modtime = 1499306628.455150000
+
+[views/compute]
+version = 6.6.1
+modtime = 1499383621.750528000
+
