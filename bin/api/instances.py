@@ -23,19 +23,27 @@ import json
 import os
 
 SERVICE_NAME = "nova"
+DEBUG = False
 
 
-def main():
-    session_key = sys.stdin.readline().strip()
-    token, auth_catalog = get_token(session_key)
-    base_url = get_baseURL(SERVICE_NAME, auth_catalog)
+def main(username=None, password=None):
+    session_key = None
+    if not DEBUG:
+        session_key = sys.stdin.readline().strip()
+    token, auth_catalog = get_token(session_key, username=username,
+                                    password=password)
+    base_url = get_baseURL(SERVICE_NAME, auth_catalog, region="nz-por-1")
     headers = {'content-type': 'application/json', 'X-Auth-Token': token}
-    project_id = auth_catalog["token"]["project"]["id"]
     # TODO(flwang): Use urlparse to connect URL
-    response = requests.get(base_url + "/" + project_id + '/servers', headers=headers).json()
+    response = requests.get(base_url + '/servers', headers=headers).json()
     instances_count = len(response["servers"])
     print("instances_count=%d" % instances_count)
 
 
 if __name__ == "__main__":
-    main()
+    DEBUG = True
+    # NOTE(flwang): After setup the app on your splunk, if it doesn't
+    # work, then you can run this script directly to debug it. Just
+    # simply replace the username and password below to debug the Nova
+    # part.
+    main(username="feilong@catalyst.net.nz", password="IBM11ibm")
