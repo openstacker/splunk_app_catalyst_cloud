@@ -22,7 +22,11 @@ import json
 import os
 import requests
 import ConfigParser
-import splunk.entity as entity
+try:
+    import splunk.entity as entity
+except:
+    print("Failed to import splunk.entity. But it's OK because it's running "
+          "in debug mode.")
 
 
 def get_credential(session_key):
@@ -39,8 +43,11 @@ def get_credential(session_key):
     return user['username'], user['clear_password']
 
 
-def get_token(session_key):
-    username, password = get_credential(session_key)
+def get_token(session_key, username=None, password=None):
+    # We don't have to pass in the username and password here, the only
+    # purpose to use the pass-in username and password is for local testing.
+    if not username and not password:
+        username, password = get_credential(session_key)
     headers = {'content-type': 'application/json'}
 
     Config = ConfigParser.ConfigParser()
@@ -80,16 +87,24 @@ def get_token(session_key):
             raise Exception("Authentication failed. Failed to get auth token.")
     except Exception as e:
         print('CRITICAL: Athentication failed for tenant %s and user %s' %
-              (tenant, user_name) + '\nException: ' + str(e))
+              (tenant, username) + '\nException: ' + str(e))
 
     return token, auth_catalog
 
 
-def get_baseURL(serviceName, auth_catalog):
+def get_baseURL(serviceName, auth_catalog, region):
     for service in auth_catalog['token']['catalog']:
-        if serviceName in service['name']:
-            return service['endpoints'][0]['url']
+        if serviceName == service['name']:
+            for endpoint in service['endpoints']:
+                if (endpoint["region"] == region and
+                        endpoint["interface"] == "public"):
+                    return endpoint["url"]
 
 
 if __name__ == "__main__":
-    pass
+    # NOTE(flwang): After setup the app on your splunk, if it doesn't
+    # work, then you can run this script directly to debug it. Just
+    # simply replace the username and password below to debug the auth
+    # process.
+    print(get_token(None, username="your_username",
+                    password="your_password"))

@@ -1,4 +1,3 @@
-local/*
-local/passwords.conf
 metadata/local.meta
 *.pyc
+local/*

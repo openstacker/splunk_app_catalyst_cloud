@@ -20,18 +20,29 @@ import requests
 from auth import *
 
 SERVICE_NAME = "glance"
+DEBUG = False
 
 
-def main():
-    session_key = sys.stdin.readline().strip()
-    token, auth_catalog = get_token(session_key)
-    base_url = get_baseURL(SERVICE_NAME, auth_catalog)
+def main(username=None, password=None):
+    session_key = None
+    if not DEBUG:
+        session_key = sys.stdin.readline().strip()
+    token, auth_catalog = get_token(session_key, username=username,
+                                    password=password)
+    base_url = get_baseURL(SERVICE_NAME, auth_catalog, "nz-por-1")
 
     headers = {'content-type': 'application/json', 'X-Auth-Token': token}
     response = requests.get(base_url + '/v2/images', headers=headers).json()
+    if DEBUG:
+        print(response)
     images_count = len(response["images"])
     print("images_count=%d" % images_count)
 
 
 if __name__ == "__main__":
-    main()
+    DEBUG = True
+    # NOTE(flwang): After setup the app on your splunk, if it doesn't
+    # work, then you can run this script directly to debug it. Just
+    # simply replace the username and password below to debug the Glance
+    # part.
+    main(username="", password="")
