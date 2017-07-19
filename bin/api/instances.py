@@ -46,4 +46,4 @@ if __name__ == "__main__":
     # work, then you can run this script directly to debug it. Just
     # simply replace the username and password below to debug the Nova
     # part.
-    main(username="", password="")
+    main(username="your_username", password="your_password")
